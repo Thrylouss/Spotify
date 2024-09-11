@@ -1,0 +1,27 @@
+{% extends 'SpotifyApp/layouts/base.html' %}
+{% load static %}
+
+{% block title %}
+	Main Page
+{% endblock %}
+
+{% block content %}
+	{% include 'SpotifyApp/includes/header_user.html' %}
+
+        <div class="albums">
+            <h1>Что то новенькое</h1>
+            <div class="albums-list">
+                {% for album in new_releases %}
+                    {% include 'SpotifyApp/user/poster_card.html' %}
+                {% endfor %}
+            </div>
+            <h1>Все альбомы</h1>
+            <div class="albums-list">
+                {% for album in albums %}
+                    {% include 'SpotifyApp/user/poster_card.html' %}
+                {% endfor %}
+            </div>
+        </div>
+
+
+{% endblock %}

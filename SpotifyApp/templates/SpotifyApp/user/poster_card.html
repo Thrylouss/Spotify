@@ -1,0 +1,7 @@
+<a href="{% url 'album_detail' album.id  %}">
+    <div class="albums-item">
+        <img src="{{ album.image.url }}" alt="">
+        <p>{{ album.name }}</p>
+        <p>{{ album.artist.first.name }}</p>
+    </div>
+</a>

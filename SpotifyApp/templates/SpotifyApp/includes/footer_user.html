@@ -1,0 +1,145 @@
+<footer>
+    <div class="footer-start">
+
+    </div>
+    <div class="footer-middle">
+        <div class="controllers">
+            <button id="prev-btn"><i class='bx bx-skip-previous' ></i></button>
+            <button id="play-btn" class="btn-style1" onclick="playTrack()"><i class="bx bx-play"></i></button>
+            <button id="pause-btn" class="btn-style2" onclick="pauseTrack()" style="display: none"><i class='bx bx-pause' ></i></button>
+            <button id="next-btn"><i class='bx bx-skip-next'></i></button>
+        </div>
+        <div class="track-slider">
+            <span id="current-time">00:00</span>
+            <input type="range" min="0" max="100" value="0" id="track-slider">
+            <span id="duration">00:00</span>
+        </div>
+        <audio controls id="audio-player">
+            <source class="current-track" src="" type="audio/mpeg">
+        </audio>
+    </div>
+    <div class="footer-end"></div>
+</footer>
+
+{% block scripts %}
+    <script>
+        const audioPlayer = document.getElementById('audio-player');
+        const currentTrackSource = document.querySelector('.current-track');
+        const footerStart = document.querySelector('.footer-start');
+        const trackSlider = document.querySelector('#track-slider')
+        const currentTimeDisplay = document.getElementById('current-time');
+        const durationDisplay = document.getElementById('duration');
+        const pauseBtn = document.getElementById('pause-btn');
+        const playBtn = document.getElementById('play-btn');
+        const btnStyle1 = document.querySelector('.btn-style1');
+        const btnStyle2 = document.querySelector('.btn-style2');
+        let currentTrackId = 1;
+
+        trackSlider.addEventListener('input', ()=> {
+            const duration = audioPlayer.duration;
+            audioPlayer.currentTime = duration * (trackSlider.value / 100);
+        })
+
+
+
+        function getAlbumComponents(data) {
+            return `
+                <div class="album-mini">
+                    <img src="${data.track_image}" alt="Album Cover">
+                    <div>
+                        <a href="/track/${data.track_id}/"><h3>${data.track_name}</h3></a>
+                        <p>${data.album_artist}</p>
+                    </div>
+                </div>
+            `
+        }
+
+        function playTrack(track_id) {
+            btnStyle1.style.display = 'none';
+            btnStyle2.style.display = 'flex';
+
+            if (track_id) {
+                currentTrackId = track_id;
+            }
+
+            fetch(`/play-track/${currentTrackId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    currentTrackSource.src = data.track;
+                    footerStart.innerHTML = getAlbumComponents(data);
+                    audioPlayer.load();
+                    audioPlayer.play();
+
+                    console.log(`Now playing: ${data.track_name}`);
+                } else {
+                    console.error(data.message);
+                }
+            });
+        }
+
+        function pauseTrack() {
+            btnStyle1.style.display = 'flex';
+            btnStyle2.style.display = 'none';
+
+
+            audioPlayer.pause();
+        }
+
+        document.getElementById('next-btn').addEventListener('click', function() {
+            fetch(`/next-track/${currentTrackId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    currentTrackSource.src = data.track;
+                    currentTrackId++;
+                    trackSlider.value = 0;
+                    footerStart.innerHTML = getAlbumComponents(data);
+                    audioPlayer.load();
+                    audioPlayer.play();
+                    console.log(`Now playing: ${data.track_name}`);
+                } else {
+                    console.error(data.message);
+                }
+            });
+        });
+
+        document.getElementById('prev-btn').addEventListener('click', function() {
+            fetch(`/previous-track/${currentTrackId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    currentTrackSource.src = data.track;
+                    currentTrackId--;
+                    trackSlider.value = 0;
+                    footerStart.innerHTML = getAlbumComponents(data);
+                    audioPlayer.load();
+                    audioPlayer.play();
+                    console.log(`Now playing: ${data.track_name}`);
+                } else {
+                    console.error(data.message);
+                }
+            });
+        });
+
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            const duration = audioPlayer.duration;
+            trackSlider.max = 100;
+            durationDisplay.textContent = formatTime(duration);
+        });
+
+        audioPlayer.addEventListener('timeupdate', () => {
+            const currentTime = audioPlayer.currentTime;
+            const duration = audioPlayer.duration;
+            trackSlider.value = (currentTime / duration) * 100;
+            currentTimeDisplay.textContent = formatTime(currentTime);
+        });
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'SpotifyApp/layouts/base.html' %}
+{% load static %}
+
+{% block title %}
+	Track Detail View
+{% endblock %}
+
+{% block content %}
+    {% include 'SpotifyApp/includes/header_user.html' %}
+
+    <div class="album-detail">
+        <div class="album-image">
+            <img src="{{ track.album.image.url }}" alt="{{ album.name }}">
+            <canvas></canvas>
+        </div>
+        <div class="album-info">
+            <p>Трек</p>
+            <h1>{{ track.name }}</h1>
+            <div class="album-detail-info">
+                <img src="{{ track.artist.first.image.url }}" alt="">
+                <p>{{ track.artist.first.name }},</p>
+                <p>{{ track.album.name }}</p>
+                <p>{{ track.get_duration }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="album-tracks">
+        <div class="albums-controllers">
+            <div class="album-controllers">
+                <button id="play-btn" onclick="playTrack({{ track.id }})" style="background: none; border: none"><i class='bx cp bx-play'></i></button>
+                <button id="pause-btn" style="display: none; background: none; border: none" ><i class='bx cp bx-pause' ></i></button>
+                <i class='bx cp bx-plus'></i>
+                <i class='bx cp bx-dots-horizontal-rounded'></i>
+            </div>
+            <div class="list-view">
+                <h3>Список</h3>
+                <i class="bx bx-menu"></i>
+            </div>
+        </div>
+    </div>
+    <div class="track-info">
+        <div class="track-text">
+            <h2>Текст</h2>
+            <pre id="lyrics">{{ track.lyrics }}</pre>
+        </div>
+        <div class="person-info">
+            <img src="{{ track.artist.first.image.url }}" alt="">
+            <div>
+                <h3>Исполнитель:</h3>
+                <p>{{ track.artist.first.name }}</p>
+            </div>
+        </div>
+    </div>
+
+    {% include 'SpotifyApp/includes/footer_container.html' %}
+
+{% endblock %}
+
+{% block scripts %}
+	<script>
+        const lyrics = document.querySelector('#lyrics').textContent;
+        let lines = lyrics.split('\n');
+
+        lines = lines.map(line => line.replace(/^\d+\|/, '').trim());
+        const cleanedText = lines.join('\n');
+
+        document.querySelector('#lyrics').textContent = cleanedText;
+
+        const albumImage = document.querySelector('.album-image img');
+        const mainContainer = document.querySelector('.main-container');
+        const canvas = document.querySelector('canvas');
+        const ctx_canvas = canvas.getContext('2d');
+        canvas.style.display = 'none';
+
+        albumImage.onload = () => {
+            ctx_canvas.width = albumImage.width;
+            ctx_canvas.height = albumImage.height;
+            ctx_canvas.drawImage(albumImage, -100, -50);
+
+            const imageData = ctx_canvas.getImageData(0, 0, albumImage.width, albumImage.height);
+            const data = imageData.data;
+
+            const red = data[0];
+            const green = data[1]
+            const blue = data[2]
+            console.log(red, green, blue);
+            mainContainer.style.background = `linear-gradient(rgba(${red}, ${green}, ${blue}, 0.8), 30%, rgb(0, 0, 0))`;
+        }
+
+    </script>
+{% endblock %}

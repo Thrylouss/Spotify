@@ -1,0 +1,46 @@
+<header>
+    <div class="nav">
+        <div class="nav-left">
+            <a href="{% url 'index' %}"><i class='bx bxl-spotify icon-logo'></i></a>
+            <a href="{% url 'index' %}"><i class='bx bxs-home-alt-2 icon-header'></i></a>
+
+            <div class="nav-search-bar">
+                <div class="nav-search-field">
+                    <i class='bx bx-search icon'></i>
+                    <input type="text" placeholder="Что хочешь включить?">
+                </div>
+                <i class='bx bx-book-content icon left-border'></i>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="">Узнать больше о Premium</a>
+            <a href=""><i class='bx bx-down-arrow-alt'></i> Установить приложение</a>
+            <a href=""><i class='bx bx-bell icon-right'></i></a>
+            <a href=""><i class='bx bx-user-circle icon-right'></i></a>
+        </div>
+    </div>
+    <div class="aside">
+        <div class="aside-header">
+            <i class='bx bx-dock-right aside-btn'></i>
+            <h2>Моя медиатека</h2>
+            <i class='bx bx-plus' ></i>
+        </div>
+        {% if user_playlists != None %}
+        	{% for playlist in user_playlists %}
+                <div class="aside-item">
+        		{% if playlist.image %}
+                    <img src="{{ playlist.image.url }}" alt="">
+        		{% else %}
+                    <img src="{{ playlist.tracks.first.album.image.url }}" alt="">
+        		{% endif %}
+                    <div style="display: flex; flex-direction: column; gap: 20px">
+                        <h3>{{ playlist.name }}</h3>
+                        <p>{{ playlist.user.username }}</p>
+                    </div>
+                </div>
+        	{% endfor %}
+        {% else %}
+            <i class='bx bx-plus' ></i>
+        {% endif %}
+    </div>
+</header>

@@ -1,0 +1,89 @@
+{% extends 'SpotifyApp/layouts/base.html' %}
+{% load static %}
+
+{% block title %}
+	Album Detail View
+{% endblock %}
+
+{% block content %}
+    {% include 'SpotifyApp/includes/header_user.html' %}
+
+    <div class="album-detail">
+        <div class="album-image">
+            <img src="{{ album.image.url }}" alt="{{ album.name }}">
+            <canvas></canvas>
+        </div>
+        <div class="album-info">
+            <p>Альбом</p>
+            <h1>{{ album.name }}</h1>
+            <div class="album-detail-info">
+                <img src="{{ album.artist.first.image.url }}" alt="">
+                <p>{{ album.artist.first.name }},</p>
+                <p>{{ album.created_at.year }},</p>
+                <p>{{ album.get_tracks_count }}, </p>
+                <p>{{ album.get_tracks_total_duration }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="album-tracks">
+        <div class="albums-controllers">
+            <div class="album-controllers">
+                <i class='bx cp bx-play'></i>
+                <i class='bx cp bx-plus'></i>
+                <i class='bx cp bx-dots-horizontal-rounded'></i>
+            </div>
+            <div class="list-view">
+                <h3>Список</h3>
+                <i class="bx bx-menu"></i>
+            </div>
+        </div>
+        <table class="table-tracks">
+            <tr class="first-td">
+                <td style="text-align: center">#</td>
+                <td>Название</td>
+                <td>Длительность</td>
+            </tr>
+            {% for track in album.get_tracks.all %}
+                <tr class="list-track">
+                    <td style="width: 5%; text-align: center">{{ forloop.counter }}</td>
+                    <td style="width: 85%">
+                        <div class="track-artist">
+                            <a href="{% url 'track_detail' track.id %}"><p>{{ track.name }}</p></a>
+                            <p>{{ track.artist.first.name }}</p>
+                        </div>
+                    </td>
+                    <td style="width: 10%">{{ track.get_duration }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    {% include 'SpotifyApp/includes/footer_container.html' %}
+
+{% endblock %}
+
+{% block scripts %}
+	<script>
+        const albumImage = document.querySelector('.album-image img');
+        const mainContainer = document.querySelector('.main-container');
+        const canvas = document.querySelector('canvas');
+        const ctx_canvas = canvas.getContext('2d');
+        canvas.style.display = 'none';
+
+        albumImage.onload = () => {
+            ctx_canvas.width = albumImage.width;
+            ctx_canvas.height = albumImage.height;
+            ctx_canvas.drawImage(albumImage, -100, -100);
+
+            const imageData = ctx_canvas.getImageData(0, 0, albumImage.width, albumImage.height);
+            const data = imageData.data;
+
+            const red = data[0];
+            const green = data[1]
+            const blue = data[2]
+            console.log(red, green, blue);
+            mainContainer.style.background = `linear-gradient(rgba(${red}, ${green}, ${blue}, 0.8), 30%, rgb(0, 0, 0))`;
+        }
+
+    </script>
+{% endblock %}
